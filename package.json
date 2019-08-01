@@ -1,0 +1,28 @@
+{
+  "name": "projet-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/robinverona/projet-backend.git"
+  },
+  "author": "Robin Verona",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/robinverona/projet-backend/issues"
+  },
+  "homepage": "https://github.com/robinverona/projet-backend#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "socket.io": "^2.2.0"
+  },
+  "engines": {
+    "node": "10.x"
+  }
+
+}
