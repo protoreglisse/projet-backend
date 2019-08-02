@@ -5,6 +5,7 @@ const app = express();
 const server = require('http').createServer(app).listen(port);
 const io = require('socket.io').listen(server);
 const fs = require('fs');
+const bodyParser = require('body-parser');
 
 console.log(`listen on ${port}`);
 console.log("Connection Established !");
@@ -14,9 +15,12 @@ const MongoClient = require('mongodb').MongoClient;
 var db;
 
 // Initialize connection once
-MongoClient.connect("mongodb+srv://admin:admin@cluster0-pp4ha.mongodb.net/test?retryWrites=true&w=majority", { useNewUrlParser: true }, function (err, database) {
+MongoClient.connect("mongodb+srv://admin:admin@cluster0-pp4ha.mongodb.net/test?retryWrites=true&w=majority", {
+	useNewUrlParser: true
+}, function (err, database) {
 	if (err) return console.error(err);
-	db = database; 
+	db = database;
+	console.log('db connected');
 });
 
 app.use('/', express.static(__dirname + '/public'));
@@ -29,37 +33,78 @@ var gameState = 0;
 var varCounter = 0;
 var scores = {};
 
-
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json());
 
 //Route
 app.get('/', function (req, res) {
 	res.sendFile(__dirname + '/index.html');
 });
 
+app.post('/players', async function (req, res) {
+	// get information of player from POST body data
+	let {
+		username,
+		score
+	} = req.body;
+
+	// check if the username already exists
+	const alreadyExisting = await db
+		.collection('/players')
+		.findOne({
+			username: username
+		});
+
+	if (alreadyExisting) {
+		res.send({
+			status: false,
+			msg: 'player username already exists'
+		});
+	} else {
+		// create the new player
+		await db.players.insertOne({
+			username,
+			score
+		});
+		console.log(`Created Player ${username}`);
+		res.send({
+			status: true,
+			msg: 'player created'
+		});
+	}
+});
+
+
+
+
+
+
+
 io.sockets.on('connection', function (socket) {
 	console.log("New Client Arrived!");
-	socket.username = username;
-	usernames[username] = username;
-	console.log('dans le tableau il y a : ' + usernames[username]);
-	scores[socket.username] = 0;
-	varCounter = 0
+
 	socket.on('addPlayer', function (username) {
-		db.users.count({
-				username: usernames[username]
-				
-			})
-			.then((count) => {
-				if (count > 0) {
-					console.log('Username exists.');
-				} else {
-					console.log('Username does not exist.');
-					playerCount++;
-				}
-			});
+		// db.users.count({
+		// 		username: usernames[username]
+
+		// 	})
+		// 	.then((count) => {
+		// 		if (count > 0) {
+		// 			console.log('Username exists.');
+		// 		} else {
+		// 			console.log('Username does not exist.');
+		// 			playerCount++;
+		// 		}
+		// 	});
+		socket.username = username;
+		usernames[username] = username;
+		console.log('dans le tableau il y a : ' + usernames[username]);
+		scores[socket.username] = 0;
+		varCounter = 0
+		playerCount++;
 
 
 
-		
 		if (playerCount === 1 || playerCount >= 3) {
 			id = Math.round((Math.random() * 1000000));
 			socket.room = id;
