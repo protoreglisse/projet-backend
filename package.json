@@ -19,10 +19,10 @@
   "homepage": "https://github.com/robinverona/projet-backend#readme",
   "dependencies": {
     "express": "^4.17.1",
+    "mongodb": "^3.3.0-beta2",
     "socket.io": "^2.2.0"
   },
   "engines": {
     "node": "10.x"
   }
-
 }

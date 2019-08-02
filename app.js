@@ -1,23 +1,35 @@
-var port = process.env.PORT || 8080;
+const port = process.env.PORT || 8080;
 
-var express = require('express');
-var app = express();
-var server = require('http').createServer(app).listen(port);
-var io = require('socket.io').listen(server);
-var fs = require('fs');
-
-app.use('/', express.static(__dirname + '/public'));
-
-var usernames = {};
-var pairCount = 0;
-var id = 0;
-// game state
-var gameState = 0;
-var	varCounter = 0;
-var scores = {};
+const express = require('express');
+const app = express();
+const server = require('http').createServer(app).listen(port);
+const io = require('socket.io').listen(server);
+const fs = require('fs');
 
 console.log(`listen on ${port}`);
 console.log("Connection Established !");
+// Database
+// Config
+const MongoClient = require('mongodb').MongoClient;
+var db;
+
+// Initialize connection once
+MongoClient.connect("mongodb+srv://admin:admin@cluster0-pp4ha.mongodb.net/test?retryWrites=true&w=majority", { useNewUrlParser: true }, function (err, database) {
+	if (err) return console.error(err);
+	db = database; 
+});
+
+app.use('/', express.static(__dirname + '/public'));
+
+// Game variables
+var usernames = {};
+var playerCount = 0;
+var id = 0;
+var gameState = 0;
+var varCounter = 0;
+var scores = {};
+
+
 
 //Route
 app.get('/', function (req, res) {
@@ -26,22 +38,38 @@ app.get('/', function (req, res) {
 
 io.sockets.on('connection', function (socket) {
 	console.log("New Client Arrived!");
-
+	socket.username = username;
+	usernames[username] = username;
+	console.log('dans le tableau il y a : ' + usernames[username]);
+	scores[socket.username] = 0;
+	varCounter = 0
 	socket.on('addPlayer', function (username) {
-		socket.username = username;
-		usernames[username] = username;
-		scores[socket.username] = 0;
-		varCounter = 0
-		pairCount++;
-		if (pairCount === 1 || pairCount >= 3) {
+		db.users.count({
+				username: usernames[username]
+				
+			})
+			.then((count) => {
+				if (count > 0) {
+					console.log('Username exists.');
+				} else {
+					console.log('Username does not exist.');
+					playerCount++;
+				}
+			});
+
+
+
+		
+		if (playerCount === 1 || playerCount >= 3) {
 			id = Math.round((Math.random() * 1000000));
 			socket.room = id;
-			pairCount = 1;
-			console.log(pairCount + " " + id);
+			playerCount = 1;
+			console.log(playerCount + " " + id);
 			socket.join(id);
 			gameState = 1;
-		} if (pairCount === 2) {
-			console.log(pairCount + " " + id);
+		}
+		if (playerCount === 2) {
+			console.log(playerCount + " " + id);
 			socket.join(id);
 			gameState = 2;
 		}
@@ -75,7 +103,7 @@ io.sockets.on('connection', function (socket) {
 	socket.on('result', function (user, result) {
 
 		io.sockets.in(result).emit('viewResult', user);
-	
+
 
 	});
 
@@ -90,4 +118,3 @@ io.sockets.on('connection', function (socket) {
 		socket.leave(socket.room);
 	});
 });
-
