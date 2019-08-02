@@ -1,4 +1,4 @@
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 7777;
 
 const express = require('express');
 const app = express();
@@ -7,21 +7,40 @@ const io = require('socket.io').listen(server);
 const fs = require('fs');
 const bodyParser = require('body-parser');
 
+// Avatar generator 
+var jdenticon = require("jdenticon");
+var size = 200;
+var value = "icon value";
+var png = jdenticon.toPng(value, size);
+    
+fs.writeFileSync("./testicon.png", png);
+
+// Infos messages
 console.log(`listen on ${port}`);
 console.log("Connection Established !");
+
 // Database
 // Config
-const MongoClient = require('mongodb').MongoClient;
-var db;
+const mongoose = require('mongoose');
+const dbURL = 'mongodb+srv://admin:admin@cluster0-pp4ha.mongodb.net/test?retryWrites=true&w=majority';
 
-// Initialize connection once
-MongoClient.connect("mongodb+srv://admin:admin@cluster0-pp4ha.mongodb.net/test?retryWrites=true&w=majority", {
-	useNewUrlParser: true
-}, function (err, database) {
-	if (err) return console.error(err);
-	db = database;
-	console.log('db connected');
+mongoose.connect(dbURL, {useNewUrlParser: true});
+
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function() {
+  // we're connected!
 });
+
+// Mongoose schema 
+var playerSchema = new mongoose.Schema({
+	username: { type : String, match: /^[a-zA-Z0-9-_]+$/ },
+	score: { type: Number, default: 0 }, 
+	date: { type : Date, default : Date.now }, 
+});
+
+// Mongoose model 
+var playerModel = mongoose.model('players', playerSchema);
 
 app.use('/', express.static(__dirname + '/public'));
 
@@ -41,39 +60,6 @@ app.get('/', function (req, res) {
 	res.sendFile(__dirname + '/index.html');
 });
 
-app.post('/players', async function (req, res) {
-	// get information of player from POST body data
-	let {
-		username,
-		score
-	} = req.body;
-
-	// check if the username already exists
-	const alreadyExisting = await db
-		.collection('/players')
-		.findOne({
-			username: username
-		});
-
-	if (alreadyExisting) {
-		res.send({
-			status: false,
-			msg: 'player username already exists'
-		});
-	} else {
-		// create the new player
-		await db.players.insertOne({
-			username,
-			score
-		});
-		console.log(`Created Player ${username}`);
-		res.send({
-			status: true,
-			msg: 'player created'
-		});
-	}
-});
-
 
 
 
@@ -84,26 +70,34 @@ io.sockets.on('connection', function (socket) {
 	console.log("New Client Arrived!");
 
 	socket.on('addPlayer', function (username) {
-		// db.users.count({
-		// 		username: usernames[username]
-
-		// 	})
-		// 	.then((count) => {
-		// 		if (count > 0) {
-		// 			console.log('Username exists.');
-		// 		} else {
-		// 			console.log('Username does not exist.');
-		// 			playerCount++;
-		// 		}
-		// 	});
-		socket.username = username;
-		usernames[username] = username;
-		console.log('dans le tableau il y a : ' + usernames[username]);
-		scores[socket.username] = 0;
+		// socket.username = username;
+		// usernames[username] = username;
+		// console.log('dans le tableau il y a : ' + usernames[username]);
+		// scores[socket.username] = 0;
+		playerModel.find(null, function (err, users) {
+			if (err) { throw err; }
+			// comms est un tableau de hash
+			console.log(users);
+		  });
+		var query = playerModel.find(null);
+		query.where('username', username);
+		query.limit(1);
+		query.exec(function (err, users) {
+			if (err) { throw err; }
+			// On va parcourir le résultat et les afficher joliment
+			var users;
+			for (var i = 0, l = users.length; i < l; i++) {
+			  user = users[i];
+			  console.log('pseudo: ' + user.username );
+			}
+		  });
+		var newPlayer = new playerModel({ username : username });
+		newPlayer.save(function (err) {
+			if (err) { throw err; }
+			console.log('player ' + username + ' ajouté avec succès !');
+		  });
 		varCounter = 0
 		playerCount++;
-
-
 
 		if (playerCount === 1 || playerCount >= 3) {
 			id = Math.round((Math.random() * 1000000));
@@ -125,30 +119,21 @@ io.sockets.on('connection', function (socket) {
 
 		socket.broadcast.to(id).emit('updatechat', 'SERVER', username + ' has joined to this game !', id);
 
-
 		if (gameState == 2) {
 			fs.readFile(__dirname + "/lib/questions.json", "Utf-8", function (err, data) {
 				jsoncontent = JSON.parse(data);
 				io.sockets.in(id).emit('sendQuestions', jsoncontent);
-
 			});
 			console.log("Player2");
 		} else {
 			console.log("Player1");
-
 		}
-
-
-
-
-
 	});
 
 
 	socket.on('result', function (user, result) {
 
 		io.sockets.in(result).emit('viewResult', user);
-
 
 	});
 
@@ -159,7 +144,6 @@ io.sockets.on('connection', function (socket) {
 
 		delete usernames[socket.username];
 		io.sockets.emit('updateusers', usernames);
-		//io.sockets.in(id).emit('updatechat', 'SERVER', socket.username + ' has disconnected',id);
 		socket.leave(socket.room);
 	});
 });
