@@ -1,4 +1,4 @@
-const port = process.env.PORT || 7777;
+const port = process.env.PORT || 5000;
 
 const express = require('express');
 const app = express();
@@ -12,7 +12,7 @@ var jdenticon = require("jdenticon");
 var size = 200;
 var value = "icon value";
 var png = jdenticon.toPng(value, size);
-    
+
 fs.writeFileSync("./testicon.png", png);
 
 // Infos messages
@@ -24,19 +24,30 @@ console.log("Connection Established !");
 const mongoose = require('mongoose');
 const dbURL = 'mongodb+srv://admin:admin@cluster0-pp4ha.mongodb.net/test?retryWrites=true&w=majority';
 
-mongoose.connect(dbURL, {useNewUrlParser: true});
+mongoose.connect(dbURL, {
+	useNewUrlParser: true
+});
 
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', function() {
-  // we're connected!
+db.once('open', function () {
+	// we're connected!
 });
 
 // Mongoose schema 
 var playerSchema = new mongoose.Schema({
-	username: { type : String, match: /^[a-zA-Z0-9-_]+$/ },
-	score: { type: Number, default: 0 }, 
-	date: { type : Date, default : Date.now }, 
+	username: {
+		type: String,
+		match: /^[a-zA-Z0-9-_]+$/
+	},
+	score: {
+		type: Number,
+		default: 0
+	},
+	date: {
+		type: Date,
+		default: Date.now
+	},
 });
 
 // Mongoose model 
@@ -52,7 +63,9 @@ var gameState = 0;
 var varCounter = 0;
 var scores = {};
 
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({
+	extended: true
+}));
 app.use(bodyParser.json());
 
 //Route
@@ -60,6 +73,42 @@ app.get('/', function (req, res) {
 	res.sendFile(__dirname + '/index.html');
 });
 
+
+// app.put('/players', async function (req, res) {
+// 	let {
+// 		username,
+// 		score
+// 	} = req.body;
+// 	// check if the username already exists
+// 	const alreadyExisting = await db
+// 		.collection('players')
+// 		.findOne({
+// 			username: username
+// 		});
+// 	if (alreadyExisting) {
+// 		// Update player object with the username
+// 		await db
+// 			.collection('players')
+// 			.updateOne({
+// 				username
+// 			}, {
+// 				$set: {
+// 					username,
+// 					score
+// 				}
+// 			});
+// 		console.log(`Player ${username} score updated to ${score}`);
+// 		res.send({
+// 			status: true,
+// 			msg: 'player score updated'
+// 		});
+// 	} else {
+// 		res.send({
+// 			status: false,
+// 			msg: 'player username not found'
+// 		});
+// 	}
+// });
 
 
 
@@ -75,27 +124,37 @@ io.sockets.on('connection', function (socket) {
 		// console.log('dans le tableau il y a : ' + usernames[username]);
 		// scores[socket.username] = 0;
 		playerModel.find(null, function (err, users) {
-			if (err) { throw err; }
-			// comms est un tableau de hash
+			if (err) {
+				throw err;
+			}
+			// users is an array of objects
 			console.log(users);
-		  });
+		});
 		var query = playerModel.find(null);
 		query.where('username', username);
 		query.limit(1);
 		query.exec(function (err, users) {
-			if (err) { throw err; }
-			// On va parcourir le résultat et les afficher joliment
+			if (err) {
+				throw err;
+			}
+			// On va parcourir le résultat et les afficher 
 			var users;
 			for (var i = 0, l = users.length; i < l; i++) {
-			  user = users[i];
-			  console.log('pseudo: ' + user.username );
+				user = users[i];
+				console.log('pseudo: ' + user.username);
 			}
-		  });
-		var newPlayer = new playerModel({ username : username });
+		});
+
+		var newPlayer = new playerModel({
+			username: req.body.username
+		});
 		newPlayer.save(function (err) {
-			if (err) { throw err; }
+			if (err) {
+				throw err;
+			}
 			console.log('player ' + username + ' ajouté avec succès !');
-		  });
+		});
+
 		varCounter = 0
 		playerCount++;
 
@@ -128,11 +187,44 @@ io.sockets.on('connection', function (socket) {
 		} else {
 			console.log("Player1");
 		}
-	});
+	
 
 
 	socket.on('result', function (user, result) {
-
+		let {
+			username,
+			score
+		} = req.body;
+		// check if the username already exists
+		const alreadyExisting = db
+			.collection('players')
+			.findOne({
+				username: username
+			});
+		if (alreadyExisting) {
+			// Update player object with the username
+			db.collection('players')
+				.updateOne({
+					username
+				}, {
+					$set: {
+						username,
+						score
+					}
+				});
+			console.log(`Player ${username} score updated to ${score}`);
+			res.send({
+				status: true,
+				msg: 'player score updated'
+			});
+		} else {
+			res.send({
+				status: false,
+				msg: 'player username not found'
+			});
+		}
+	});
+	
 		io.sockets.in(result).emit('viewResult', user);
 
 	});
