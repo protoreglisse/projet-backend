@@ -16,11 +16,6 @@ const expressLayouts = require('express-ejs-layouts');
 app.use(expressLayouts);
 app.set('view engine', 'ejs');
 
-// Avatar generator
-var jdenticon = require("jdenticon");
-var size = 50;
-var value = "icon value";
-var png = jdenticon.toPng(value, size);
 
 // Infos messages
 console.log(`listen on ${port}`);
@@ -86,11 +81,6 @@ app.get('/', function (req, res) {
 	res.render('layout');
 });
 
-
-
-
-
-
 io.sockets.on('connection', function (socket) {
 	console.log("New Client Arrived!");
 
@@ -121,9 +111,13 @@ io.sockets.on('connection', function (socket) {
 
 			}
 		});
-
+		// Avatar generator
+		var jdenticon = require("jdenticon");
+		var size = 50;
+		var value = newPlayer.username;
+		var png = jdenticon.toPng(value, size);
 		var newPlayer = new playerModel({
-			username: username, 
+			username: username,
 			avatar: fs.writeFileSync(`./public/assets/avatars/${username}.png`, png)
 		});
 
@@ -137,11 +131,6 @@ io.sockets.on('connection', function (socket) {
 			varCounter = 0
 			playerCount++;
 		}
-
-		
-
-
-
 
 		if (playerCount === 1 || playerCount >= 3) {
 			id = Math.round((Math.random() * 1000000));

@@ -14,33 +14,36 @@
     <script>
         var socket = io.connect();
         // Initialize global variables
-        var i, username;
-        var j = 0;
-        var myscore = 0;
-        var otherscore = 0;
-        var finalresults = 0;
-        var ti = 0;
-        var user_id = 0;
+        // var i, username;
+        // var j = 0;
+        // var myscore = 0;
+        // var otherscore = 0;
+        // var finalresults = 0;
+        // var ti = 0;
+        // var user_id = 0;
 
 
 
-        $(document).ready(function () {
-			$('#validate').click(function () {
-				$("subscribe").hide();
-				username = $("#input_user").val();
-				if (username != '') {
-					socket.emit('addPlayer', username);
-				} else {
-					alert("Vous devez choisir un pseudonyme");
-					window.location.href;
-				}
-			});
-		});
+        // $(document).ready(function () {
+		// 	$('#validate').click(function () {
+		// 		$("subscribe").hide();
+		// 		username = $("#input_user").val();
+		// 		if (username != '') {
+		// 			socket.emit('addPlayer', username);
+		// 		} else {
+		// 			alert("Vous devez choisir un pseudonyme");
+		// 			window.location.href;
+		// 		}
+		// 	});
+		// });
     </script>
 </head>
 <body class="rapoetry">
-    <%- include('../views/hud'); -%>
-
+    <%- include('hud'); -%>
+    <main>
+        <%- include('login'); -%>
+    </main>
+    
 
 
         <!-- Optional JavaScript -->

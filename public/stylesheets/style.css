@@ -17,14 +17,16 @@
 
 }
 
-#subscribe {
+#login {
     background-color: transparent;
     margin-top: 15%;
 
 }
 
-#subscribe input {
-    font-size: 27px;
+#login input {
+    font-size: 32px;
+    font-weight: bold;
+    color: #ffff64;
 }
 
 .loader {
