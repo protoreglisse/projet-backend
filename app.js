@@ -38,6 +38,8 @@ db.once('open', function () {
 var playerSchema = new mongoose.Schema({
 	username: {
 		type: String,
+		required: true,
+		unique: true,
 		match: /^[a-zA-Z0-9-_]+$/
 	},
 	score: {
@@ -62,6 +64,7 @@ var id = 0;
 var gameState = 0;
 var varCounter = 0;
 var scores = {};
+var playerExists;
 
 app.use(bodyParser.urlencoded({
 	extended: true
@@ -123,12 +126,11 @@ io.sockets.on('connection', function (socket) {
 		// usernames[username] = username;
 		// console.log('dans le tableau il y a : ' + usernames[username]);
 		// scores[socket.username] = 0;
+
 		playerModel.find(null, function (err, users) {
 			if (err) {
 				throw err;
 			}
-			// users is an array of objects
-			console.log(users);
 		});
 		var query = playerModel.find(null);
 		query.where('username', username);
@@ -141,22 +143,37 @@ io.sockets.on('connection', function (socket) {
 			var users;
 			for (var i = 0, l = users.length; i < l; i++) {
 				user = users[i];
-				console.log('pseudo: ' + user.username);
+				if (user === users[i]) {
+					socket.emit('username already taken, choose another one');
+					console.log('ERR : username already taken');
+					playerExists = true;
+				} else {
+					playerExists = false;
+					console.log('player: ' + newPlayer);
+				}
+
 			}
 		});
 
 		var newPlayer = new playerModel({
-			username: req.body.username
-		});
-		newPlayer.save(function (err) {
-			if (err) {
-				throw err;
-			}
-			console.log('player ' + username + ' ajouté avec succès !');
+			username: username
 		});
 
-		varCounter = 0
-		playerCount++;
+		if (playerExists === false) {
+			newPlayer.save(function (err) {
+				if (err) {
+					throw err;
+				}
+				console.log('player ' + username + ' ajouté avec succès !');
+			});
+			varCounter = 0
+			playerCount++;
+		}
+
+
+
+
+
 
 		if (playerCount === 1 || playerCount >= 3) {
 			id = Math.round((Math.random() * 1000000));
@@ -187,45 +204,46 @@ io.sockets.on('connection', function (socket) {
 		} else {
 			console.log("Player1");
 		}
-	
 
 
-	socket.on('result', function (user, result) {
-		let {
-			username,
-			score
-		} = req.body;
-		// check if the username already exists
-		const alreadyExisting = db
-			.collection('players')
-			.findOne({
-				username: username
-			});
-		if (alreadyExisting) {
-			// Update player object with the username
-			db.collection('players')
-				.updateOne({
-					username
-				}, {
-					$set: {
-						username,
-						score
-					}
+
+		socket.on('result', function (user, result) {
+			let {
+				username,
+				score
+			} = req.body;
+			// check if the username already exists
+			const alreadyExisting = db
+				.collection('players')
+				.findOne({
+					username: username
 				});
-			console.log(`Player ${username} score updated to ${score}`);
-			res.send({
-				status: true,
-				msg: 'player score updated'
-			});
-		} else {
-			res.send({
-				status: false,
-				msg: 'player username not found'
-			});
-		}
-	});
-	
-		io.sockets.in(result).emit('viewResult', user);
+			if (alreadyExisting) {
+				// Update player object with the username
+				db.collection('players')
+					.updateOne({
+						username
+					}, {
+						$set: {
+							username,
+							score
+						}
+					});
+				console.log(`Player ${username} score updated to ${score}`);
+				res.send({
+					status: true,
+					msg: 'player score updated'
+				});
+			} else {
+				res.send({
+					status: false,
+					msg: 'player username not found'
+				});
+			}
+			io.sockets.in(result).emit('viewResult', user);
+		});
+
+
 
 	});
 
@@ -233,7 +251,9 @@ io.sockets.on('connection', function (socket) {
 
 
 	socket.on('disconnect', function () {
-
+		if (playerExists) {
+			socket.disconnect();
+		}
 		delete usernames[socket.username];
 		io.sockets.emit('updateusers', usernames);
 		socket.leave(socket.room);
