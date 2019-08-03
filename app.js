@@ -7,6 +7,15 @@ const io = require('socket.io').listen(server);
 const fs = require('fs');
 const bodyParser = require('body-parser');
 
+
+// EJS
+
+const ejs = require('ejs');
+const expressLayouts = require('express-ejs-layouts');
+
+app.use(expressLayouts);
+app.set('view engine', 'ejs');
+
 // Avatar generator
 var jdenticon = require("jdenticon");
 var size = 50;
@@ -74,7 +83,7 @@ app.use(bodyParser.json());
 
 //Route
 app.get('/', function (req, res) {
-	res.sendFile(__dirname + '/index.html');
+	res.render('layout');
 });
 
 

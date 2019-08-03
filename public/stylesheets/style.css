@@ -63,7 +63,7 @@
 body {
     margin: 0;
     padding: 0;
-    background: url(../assets/bgmic.jpg) no-repeat center fixed;
+    background: url(../assets/images/bgmic.jpg) no-repeat center fixed;
     -webkit-background-size: cover;
     background-size: cover;
     overflow: hidden;
