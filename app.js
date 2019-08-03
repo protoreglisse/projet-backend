@@ -7,13 +7,11 @@ const io = require('socket.io').listen(server);
 const fs = require('fs');
 const bodyParser = require('body-parser');
 
-// Avatar generator 
+// Avatar generator
 var jdenticon = require("jdenticon");
-var size = 200;
+var size = 50;
 var value = "icon value";
 var png = jdenticon.toPng(value, size);
-
-fs.writeFileSync("./testicon.png", png);
 
 // Infos messages
 console.log(`listen on ${port}`);
@@ -50,6 +48,9 @@ var playerSchema = new mongoose.Schema({
 		type: Date,
 		default: Date.now
 	},
+	avatar: {
+		default: ''
+	}
 });
 
 // Mongoose model 
@@ -77,43 +78,6 @@ app.get('/', function (req, res) {
 });
 
 
-// app.put('/players', async function (req, res) {
-// 	let {
-// 		username,
-// 		score
-// 	} = req.body;
-// 	// check if the username already exists
-// 	const alreadyExisting = await db
-// 		.collection('players')
-// 		.findOne({
-// 			username: username
-// 		});
-// 	if (alreadyExisting) {
-// 		// Update player object with the username
-// 		await db
-// 			.collection('players')
-// 			.updateOne({
-// 				username
-// 			}, {
-// 				$set: {
-// 					username,
-// 					score
-// 				}
-// 			});
-// 		console.log(`Player ${username} score updated to ${score}`);
-// 		res.send({
-// 			status: true,
-// 			msg: 'player score updated'
-// 		});
-// 	} else {
-// 		res.send({
-// 			status: false,
-// 			msg: 'player username not found'
-// 		});
-// 	}
-// });
-
-
 
 
 
@@ -122,11 +86,6 @@ io.sockets.on('connection', function (socket) {
 	console.log("New Client Arrived!");
 
 	socket.on('addPlayer', function (username) {
-		// socket.username = username;
-		// usernames[username] = username;
-		// console.log('dans le tableau il y a : ' + usernames[username]);
-		// scores[socket.username] = 0;
-
 		playerModel.find(null, function (err, users) {
 			if (err) {
 				throw err;
@@ -139,13 +98,12 @@ io.sockets.on('connection', function (socket) {
 			if (err) {
 				throw err;
 			}
-			// On va parcourir le résultat et les afficher 
-			var users;
+			console.log(`la db me renvoit : ${users}`)
 			for (var i = 0, l = users.length; i < l; i++) {
 				user = users[i];
 				if (user === users[i]) {
-					socket.emit('username already taken, choose another one');
-					console.log('ERR : username already taken');
+					console.log(`${user} already exists`);
+					socket.emit('userExists', 'username already taken, choose another one');
 					playerExists = true;
 				} else {
 					playerExists = false;
@@ -156,7 +114,8 @@ io.sockets.on('connection', function (socket) {
 		});
 
 		var newPlayer = new playerModel({
-			username: username
+			username: username, 
+			avatar: fs.writeFileSync(`./public/assets/avatars/${username}.png`, png)
 		});
 
 		if (playerExists === false) {
@@ -170,7 +129,7 @@ io.sockets.on('connection', function (socket) {
 			playerCount++;
 		}
 
-
+		
 
 
 
@@ -189,11 +148,10 @@ io.sockets.on('connection', function (socket) {
 			gameState = 2;
 		}
 
-		console.log(username + " joined to " + id);
 
 		socket.emit('updatechat', 'SERVER', 'You are connected! <br> Waiting for other player to connect...', id);
 
-		socket.broadcast.to(id).emit('updatechat', 'SERVER', username + ' has joined to this game !', id);
+		socket.broadcast.to(id).emit('updatechat', 'SERVER', newPlayer.username + ' has joined to this game !', id);
 
 		if (gameState == 2) {
 			fs.readFile(__dirname + "/lib/questions.json", "Utf-8", function (err, data) {
