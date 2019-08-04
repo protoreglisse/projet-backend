@@ -8,14 +8,6 @@ const fs = require('fs');
 const bodyParser = require('body-parser');
 
 
-// EJS
-
-const ejs = require('ejs');
-const expressLayouts = require('express-ejs-layouts');
-
-app.use(expressLayouts);
-app.set('view engine', 'ejs');
-
 
 // Infos messages
 console.log(`listen on ${port}`);
@@ -78,7 +70,7 @@ app.use(bodyParser.json());
 
 //Route
 app.get('/', function (req, res) {
-	res.render('layout');
+	res.render('index');
 });
 
 io.sockets.on('connection', function (socket) {
@@ -114,8 +106,9 @@ io.sockets.on('connection', function (socket) {
 		// Avatar generator
 		var jdenticon = require("jdenticon");
 		var size = 50;
-		var value = newPlayer.username;
+		var value = `${username}`;
 		var png = jdenticon.toPng(value, size);
+		console.log(username);
 		var newPlayer = new playerModel({
 			username: username,
 			avatar: fs.writeFileSync(`./public/assets/avatars/${username}.png`, png)
@@ -130,6 +123,7 @@ io.sockets.on('connection', function (socket) {
 			});
 			varCounter = 0
 			playerCount++;
+			socket.emit('loggedPlayer', newPlayer);
 		}
 
 		if (playerCount === 1 || playerCount >= 3) {
