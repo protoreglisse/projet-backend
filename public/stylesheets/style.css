@@ -1,139 +1,137 @@
-/* body{
-    font-family: 'Quicksand', sans-serif;
+#hud {
+    background-color: #ffff64;
+    box-shadow: 0 4px 6px 0 hsla(0%, 0%, 0%, 0.2);
 }
 
-h2{
-    color: #ee714e;
-    }
+#question {
+    background-color: black;
+    border: #ffff64 2px solid;
+    color: white;
+    margin-top: 10%;
+}
 
-#realresults{
-    color: #ee714e;
+#rules {
+    background: #ffff64;
+    color: black;
+    margin-top: 10%;
+
+}
+
+#login {
+    background-color: transparent;
+    margin-top: 15%;
+
+}
+
+#login input {
+    font-size: 32px;
+    font-weight: bold;
+    color: #ffff64;
 }
 
 
-.just_start input[type="text"] {
-    width: 400px;
-    margin-top: 30px;
-    padding: 0.5em 0;
-    color: #ee714e;
-    border:none;
-    border-bottom: 2px solid #ee714e;
-    border-radius: 0;
-    background: #f0f0f0;
-    font-weight: 400;
-    font-size: 20px;
-    text-align: center;
-
+.loader {
+    border: 16px solid #ffff64;
+    border-radius: 50%;
+    border-top: 16px solid #2d2d2d;
+    width: 120px;
+    height: 120px;
+    -webkit-animation: spin 2s linear infinite;
+    /* Safari */
+    animation: spin 2s linear infinite;
 }
-.btn-start{
-    background: #ee714e;
-    color: #fff ;
-    border: 1px solid #ee714e;
-    padding: 10px;
-    margin-top: 70px;
+
+
+/* Safari */
+@-webkit-keyframes spin {
+    0% {
+        -webkit-transform: rotate(0deg);
     }
 
-.just_start, .started, .intermediate,.rules{
-    background-color: #fff;
+    100% {
+        -webkit-transform: rotate(360deg);
+    }
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
     }
 
-.rules{
-    width: 700px;
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background: url(../assets/images/bgmic.jpg) no-repeat center fixed;
+    -webkit-background-size: cover;
+    background-size: cover;
+    overflow: hidden;
+}
+
+main {
+    height: 70vh;
+}
+
+.rapoetry button {
+    color: black;
+    background-color: #ffff64;
+}
+
+.center-el {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.form__group {
+    position: relative;
+    padding: 15px 0 0;
+    margin-top: 10px;
+}
+
+.form__field {
+    font-family: inherit;
+    width: 100%;
+    border: 0;
+    border-bottom: 1px solid white;
+    outline: 0;
+    font-size: 16px;
+    color: white;
+    padding: 7px 0;
+    background: transparent;
+    transition: border-color 0.2s;
+}
+
+.form__field::placeholder {
+    color: transparent;
+}
+
+.form__field:placeholder-shown~.form__label {
+    font-size: 16px;
+    cursor: text;
+    top: 20px;
+}
+
+label,
+.form__field:focus~.form__label {
     position: absolute;
-    margin: 0px auto;
     top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  margin-top: 150px;
+    display: block;
+    transition: 0.2s;
+    font-size: 12px;
+    color: white;
 }
 
-.started, .current_res_c, .current_res_w{
-    margin-top: 100px;
-}       
-
-#finalresult, .intermediate{
-    margin-top:200px;
-    font-size: 30px;
-    text-align: center;
-    color: #ee714e;
+.form__field:focus~.form__label {
+    color: #ffff64;
 }
 
-#finalresult_show {
-    text-align: center;
-}
-
-#finalresult_show a{
-    margin-top:200px;
-    font-size: 17px;
-    text-align: center;
-    color: #a2a2a2;
-    padding: 10px;
-}
-
-
-.choices button{
-    background: #ffffff;
-    color: #ee714e;
-    border: 1px solid #ee714e;
-    border-radius: 10px;
-    font-size: 17px;
-    padding: 10px;
-    min-width:200px; 
-    min-height:50px;
-    margin-top: 50px;
-    }
-
-.choices button:hover {
-    box-shadow: none ;
-    background: #EE714E ;
-    color: #ffffff ;
-    } */
- */
-
-
-
-
-.loading-page {
-  width: 100%;
-  position: relative;
- 
-}
-.loading-page .counter {
-  text-align: center;
-}
-.loading-page .counter p {
-  font-size: 40px;
-  font-weight: 100;
-  color: #f60d54;
-}
-.loading-page .counter h3 {
-  color: #2c3e50;
-  font-size: 60px;
-  position: fixed;
-  bottom: 30px;
-  left: 0;
- 
-}
-.loading-page .counter hr {
-  background: #2c3e50;
-  border: none;
-  height: 5px;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-}
-.loading-page .counter {
-  position: relative;
- 
-}
-.loading-page .counter h3.abs {
-  position: fixed;
-  top: 0;
-  width: 100%;
-}
-.loading-page .counter .color {
-  width: 0px;
-  overflow: hidden;
-  color: #f60d54;
+.form__field:focus {
+    padding-bottom: 6px;
+    border-bottom: 2px solid #ffff64;
 }
