@@ -1,10 +1,10 @@
 {"questions":[
-	{"question": "Punchline", "choices": ["RAP", "POÉSIE"], "correctAnswer":0},
-	{"question": "Vers", "choices": ["RAP", "POÉSIE"], "correctAnswer":1},
-	{"question": "Punchline", "choices": ["RAP", "POÉSIE"], "correctAnswer":0},
-	{"question": "Vers", "choices": ["RAP", "POÉSIE"], "correctAnswer":1},
-	{"question": "Vers", "choices": ["RAP", "POÉSIE"], "correctAnswer":1},
-	{"question": "Punchline", "choices": ["RAP", "POÉSIE"], "correctAnswer":0}
+	{"question": "Que Dieu me punisse d'être conne les autres.", "choices": ["RAP", "POÉSIE"], "correctAnswer":0},
+	{"question": "La campagne mangeait l'odeur de ta jupe odorante", "choices": ["RAP", "POÉSIE"], "correctAnswer":1},
+	{"question": "J'aime voir le ciel, j'aime ce silence", "choices": ["RAP", "POÉSIE"], "correctAnswer":0},
+	{"question": "Encore un sursaut, et il retombera, sans souffle et rigide", "choices": ["RAP", "POÉSIE"], "correctAnswer":1},
+	{"question": " Ce deuil est sans raison.", "choices": ["RAP", "POÉSIE"], "correctAnswer":1},
+	{"question": "La brume et l'ombre que crée le porche m'auront coulé dans leur bain", "choices": ["RAP", "POÉSIE"], "correctAnswer":0}
 
 ]}
 
