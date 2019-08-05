@@ -9,13 +9,13 @@ var fs = require('fs');
 
 app.use('/', express.static(__dirname + '/public'));
 
-var usernames = {};
+var usernames = [];
 var pairCount = 0;
 var id = 0;
 // game state
 var gameState = 0;
 var	varCounter = 0;
-var scores = {};
+var scores = [];
 
 console.log(`listen on ${port}`);
 console.log("Connection Established !");
@@ -30,8 +30,7 @@ io.sockets.on('connection', function (socket) {
 
 	socket.on('addUser', function (username) {
 		socket.username = username;
-		usernames[username] = username;
-		scores[socket.username] = 0;
+		usernames.push(username);
 		varCounter = 0
 		pairCount++;
 		if (pairCount === 1 || pairCount >= 3) {
@@ -49,9 +48,9 @@ io.sockets.on('connection', function (socket) {
 
 		console.log(username + " joined to " + id);
 
-		socket.emit('updateInfos', 'SERVER', 'You are connected! <br> Waiting for other player to connect...', id);
+		socket.emit('updateInfos', usernames, 'You are connected! <br> Waiting for other player to connect...', id);
 
-		socket.broadcast.to(id).emit('updateInfos', 'SERVER', username + ' has joined to this game !', id);
+		socket.broadcast.to(id).emit('updateInfos', usernames, username + ' has joined to this game !', id);
 
 
 		if (gameState == 2) {
