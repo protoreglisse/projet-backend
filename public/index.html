@@ -21,33 +21,8 @@
     <!-- Socket.io -->
     <script src="/socket.io/socket.io.js"></script>
 
-    <!-- JavaScript script -->
-    <script src="./main.js"></script>
-
-    <script>
-        // var socket = io.connect();
-        // $(function () {
-        //     $('#validate').click(function () {
-        //         $("#login").hide();
-        //         var username = $("#input_user").val();
-        //         if (username != '') {
-        //             socket.emit('addPlayer', username);
-        //             console.log(username);
-        //             $('#player1').text(username);
-        //         } else {
-        //             alert("Vous devez choisir un pseudonyme");
-        //             window.location.href;
-        //         }
-        //     });
-        // });
 
 
-
-        // socket.on('connect', function () {
-        //     console.log('Client has connected to the server!');
-
-        // });
-    </script>
 
     <title>RAPOÉSIE</title>
 </head>
@@ -70,6 +45,10 @@
             <h2 class="text-white font-weight-bold my-5 center-el">Saisis ton pseudonyme pour jouer !</h2>
             <div class="form__group container">
                 <input type="text" id="input_user" class="form__field" placeholder="Ton pseudonyme">
+                <br>
+                <div id="error" class="bg-danger text-white mt-3 py-2 text-center" style="display: none;">
+                    <span>Ce pseudonyme est déjà utilisé, choisis en un autre!</span>
+                </div>
                 <br>
                 <div class="center-el mt-5">
                     <button id="validate" type="submit"
@@ -98,17 +77,26 @@
 
         <!-- QUIZ BLOCK -->
         <div id="quiz" style="display: none;">
-                <div id="question" class="container py-5 center-el mb-5">
-                    <h2 id="displayQuestion">Que Dieu me punisse d'être comme les autres.</h2>
-                </div>
-                <div id="answers" class="container mt-5">
-                    <button id="answer1" class="btn btn-lg btn-block" value="">RAP</button>
-                    <div class="my-5"></div>
-                    <button id="answer2" class="btn btn-lg btn-block" value="">POÉSIE</button>
-                </div>
+            <div id="question" class="container py-5 center-el mb-5">
+                <h2 id="displayQuestion">Que Dieu me punisse d'être comme les autres.</h2>
             </div>
-    </main>
+            <div id="goodAns" class="alert alert-success" role="alert" style="display: none;">Bonne réponse</div>
+            <div id="badAns" class="alert alert-danger" role="alert" style="display: none;">Mauvaise réponse</div>
+            <div id="answers" class="container mt-5">
+                <button id="answer1" class="btn btn-lg btn-block" value="">RAP</button>
+                <div class="my-5"></div>
+                <button id="answer2" class="btn btn-lg btn-block" value="">POÉSIE</button>
+            </div>
+        </div>
 
+
+        <div id="finalResult" style="display: none;">
+
+        </div>
+
+    </main>
+    <!-- JavaScript script -->
+    <script src="./main.js"></script>
     <!-- Popper.js, then Bootstrap JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
         integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous">

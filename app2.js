@@ -58,21 +58,10 @@ app.get('/', (req, res) => {
 //socket.io 
 const io = require("socket.io")(server);
 
-var users = {};
+var users = [];
 var id = 0; 
 var playerCount = 0; 
 var gameState = 0;
-
-
-var questions = [
-	{"question": "Punchline", "choices": ["RAP", "POÉSIE"], "correctAnswer":0},
-	{"question": "Vers", "choices": ["RAP", "POÉSIE"], "correctAnswer":1},
-	{"question": "Punchline", "choices": ["RAP", "POÉSIE"], "correctAnswer":0},
-    {"question": "Vers", "choices": ["RAP", "POÉSIE"], "correctAnswer":1},
-    {"question": "Punchline", "choices": ["RAP", "POÉSIE"], "correctAnswer":0},
-    {"question": "Vers", "choices": ["RAP", "POÉSIE"], "correctAnswer":1},
-    {"question": "Vers", "choices": ["RAP", "POÉSIE"], "correctAnswer":1}
-]
 
 
 //listen on every connection
@@ -81,22 +70,22 @@ io.on('connection', (socket) => {
 
     // Define username
     socket.on('addUser', (data) => {
-        var newUser = new userModel( {
-            username: data.username
-        } );
-        newUser.save(function (err) {
-            if (err) {
-                socket.emit('userExists', {errorMessage: 'User already exists inside db'} )
-            }
-            console.log(`${newUser.username} added to db`);
+        // var newUser = new userModel( {
+        //     username: data.username
+        // } );
+        // newUser.save(function (err) {
+        //     if (err) {
+        //         socket.emit('userExists', {errorMessage: 'User already exists inside db'} )
+        //     }
+        //     console.log(`${newUser.username} added to db`);
             
-        });
-
+        // });
+        users.push(data.username);
         playerCount++;
 
-        socket.emit('updateInfos', 'SERVER', 'You are connected! <br> Waiting for other player to connect...', id);
+        socket.emit('updateInfos', 'En attente d\'un autre joueur', 'You are connected! <br> Waiting for other player to connect...', id);
 
-        socket.broadcast.to(id).emit('updateInfos', 'SERVER', socket.username + ' has joined to this game !', id);
+        socket.broadcast.to(id).emit('updateInfos', data.username, data.username + ' has joined to this game !', id);
 
         if (playerCount === 1 || playerCount >= 3) {
             id = Math.round((Math.random() * 1000000));
@@ -116,10 +105,13 @@ io.on('connection', (socket) => {
             fs.readFile(__dirname + "/lib/questions.json", "Utf-8", function (err, data) {
                 var jsoncontent = JSON.parse(data);
                 io.sockets.in(id).emit('sendQuestions', jsoncontent);
-    
+                console.log('GAME START');
             });
-            // io.sockets.emit('sendQuestions', questions)
+
+
+
             console.log("Player2");
+            
         } else {
             console.log("Player1");
     
@@ -128,9 +120,8 @@ io.on('connection', (socket) => {
 
         socket.on('disconnect', function () {
 
-            delete usernames[socket.username];
-            io.sockets.emit('updateusers', usernames);
-            //io.sockets.in(id).emit('updatechat', 'SERVER', socket.username + ' has disconnected',id);
+            delete users[users.indexOf(socket.username)];
+            io.sockets.emit('updateusers', users);
             socket.leave(socket.room);
         });
     
