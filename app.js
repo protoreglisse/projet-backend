@@ -9,6 +9,46 @@ var fs = require('fs');
 
 app.use('/', express.static(__dirname + '/public'));
 
+
+// Database
+// Config
+const mongoose = require('mongoose');
+const dbURL = 'mongodb+srv://admin:admin@cluster0-pp4ha.mongodb.net/test?retryWrites=true&w=majority';
+
+mongoose.connect(dbURL, {
+	useNewUrlParser: true
+});
+
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function () {
+	console.log('DB Connected');
+});
+
+// Mongoose schema 
+var userSchema = new mongoose.Schema({
+	username: {
+		type: String,
+		required: true,
+		unique: true,
+		match: /^[a-zA-Z0-9-_]+$/
+	},
+	score: {
+		type: Number,
+		default: 0
+	},
+	date: {
+		type: Date,
+		default: Date.now
+	},
+	avatar: {
+		default: ''
+	}
+});
+
+// Mongoose model 
+var userModel = mongoose.model('users', userSchema);
+
 var usernames = [];
 var pairCount = 0;
 var id = 0;
@@ -33,6 +73,18 @@ io.sockets.on('connection', function (socket) {
 		usernames.push(username);
 		varCounter = 0
 		pairCount++;
+
+		// Prepare user for DB
+		var newUser = new userModel( {
+            username: username
+		} );
+		newUser.save(function (err) {
+            if (err) {
+                socket.emit('userExists', {errorMessage: 'User already exists inside db'} );
+            }
+            console.log(`${newUser.username} added to db`);
+            
+        });
 		if (pairCount === 1 || pairCount >= 3) {
 			id = Math.round((Math.random() * 1000000));
 			socket.room = id;
