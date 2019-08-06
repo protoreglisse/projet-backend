@@ -4,7 +4,8 @@ $(function () {
 
     // "PARTIALS"
     var hud = $('#hud');
-    var myScore = $('#myscore');
+    var me = $('#player1');
+    var otherOne = $('#player2');
     var otherScore = $('#otherscore');
     var login = $('#login');
     var validate = $('#validate');
@@ -44,8 +45,8 @@ $(function () {
         login.hide();
         loader.show();
         // alert(usernames);
-        myScore.text(usernames[0]);
-        otherScore.text((usernames[1]));
+        $('#myName').text(usernames[0]);
+        $('#otherName').text((usernames[1]));
         userId = id;
     });
 
@@ -95,10 +96,9 @@ $(function () {
                     var givenAns = this.value;
                     console.log('given ans = ' + givenAns)
                     var correctAns = data.questions[i - 1].correctAnswer;
-                    console.log('good ans = ' + correctAns);
                     if (givenAns == correctAns) {
                         myQuizScore += 10;
-                        myScore.text(myQuizScore);
+                        myScore.append(myQuizScore);
                         if (j == 1) {
                             socket.emit('result', username, userId);
                             console.log("correct ans");
@@ -121,7 +121,7 @@ $(function () {
                 clearInterval(timer);
                 // quiz.show();
                 // loader.hide();
-                socket.emit('result')
+                socket.emit('result', myQuizScore)
                 // faire div finalResult
                 $("#finalResult").show();
             }
