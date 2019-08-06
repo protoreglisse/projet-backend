@@ -100,7 +100,7 @@ $(function () {
                         myQuizScore += 10;
                         myScore.append(myQuizScore);
                         if (j == 1) {
-                            socket.emit('result', username, userId);
+                            socket.emit('result', username, userId, scores);
                             console.log("correct ans");
                             console.log(username);
                             console.log("value of inner j: " + j)

@@ -68,9 +68,10 @@ app.get('/', function (req, res) {
 io.sockets.on('connection', function (socket) {
 	console.log("New Client Arrived!");
 
-	socket.on('addUser', function (username) {
+	socket.on('addUser', function (username, score) {
 		socket.username = username;
 		usernames.push(username);
+		
 		varCounter = 0
 		pairCount++;
 
@@ -84,7 +85,8 @@ io.sockets.on('connection', function (socket) {
             }
             console.log(`${newUser.username} added to db`);
             
-        });
+		});
+		
 		if (pairCount === 1 || pairCount >= 3) {
 			id = Math.round((Math.random() * 1000000));
 			socket.room = id;
@@ -124,7 +126,7 @@ io.sockets.on('connection', function (socket) {
 	});
 
 
-	socket.on('result', function (user, result) {
+	socket.on('result', function (user, userId, result) {
 
 		io.sockets.in(result).emit('viewResult', user);
 	
